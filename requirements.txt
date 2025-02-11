@@ -1,0 +1,16 @@
+python-dotenv
+langchain
+langchain-openai
+langchain-community
+langchain-pinecone
+pinecone-client
+pdfplumber
+fastapi
+python-multipart
+uvicorn
+playsound
+fastapi 
+python-multipart 
+uvicorn
+openai
+pinecone
