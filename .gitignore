@@ -1,6 +1,8 @@
 # Environment variables
 .env
 
+myenv
+
 # Python
 __pycache__/
 *.py[cod]
