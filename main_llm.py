@@ -18,17 +18,17 @@ openai_api_key = config.get("OPENAI_API_KEY")
 voice_ids = {"woman" : "21m00Tcm4TlvDq8ikWAM", "man" : "pqHfZKP75CvOlQylNhV4"}
 
 def synthesize_text_to_speech(gender: str, text: str, output_filename: str = "output.mp3", 
-                                stability: float = 0.75, similarity_boost: float = 0.75) -> None:
+                            stability: float = 0.75, similarity_boost: float = 0.75) -> None:
     """
     Synthesize speech from text using the ElevenLabs API and save it as an MP3 file.
 
     Parameters:
-        api_key (str): Your ElevenLabs API key.
-        voice_id (str): The ID of the voice to use.
-        text (str): The text to convert to speech.
-        output_filename (str): The file name to save the audio to (default is "output.mp3").
-        stability (float): Stability setting for voice synthesis.
-        similarity_boost (float): Similarity boost setting for voice synthesis.
+        gender (str): "man" or "woman" to select voice
+        text (str): The text to convert to speech
+        language (str): The language of the input text
+        output_filename (str): The file name to save the audio to (default is "output.mp3")
+        stability (float): Stability setting for voice synthesis
+        similarity_boost (float): Similarity boost setting for voice synthesis
     """
     voice_id = voice_ids[gender]
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
@@ -41,6 +41,7 @@ def synthesize_text_to_speech(gender: str, text: str, output_filename: str = "ou
     
     data = {
         "text": text,
+        "model_id": "eleven_multilingual_v2",  # Specify the multilingual model
         "voice_settings": {
             "stability": stability,
             "similarity_boost": similarity_boost
@@ -113,7 +114,7 @@ if __name__ == "__main__":
     print(result_text)
 
 
-def run_agent(input: str) :
+def run_agent(input: str, language: str) :
     tools = [vector_store_tool]
 
     prompt = hub.pull("hwchase17/openai-functions-agent")
@@ -126,14 +127,15 @@ def run_agent(input: str) :
     response = agent_executor.invoke({"input":f""" You are an helpful AI medical agent called MedSync. 
                         You have been provided patient education material endpoint to get information for actual cancer patients, as well as an email endpoint. 
                         answer the user query to the best of your ability.  Since you are a conversational agent keep you answer's very concise so it feels like a conversation. dont make bullet points or use ** for markdown, just simple paragraphs as we are using Text To Speech tech.
+                        please translate your response to the specified language : {language}
                         User query : {input}"""})
     print(response["output"])
     return response["output"]
 
-async def run_agent_voice(gender: str) -> None:
+async def run_agent_voice(gender: str, language: str) -> None:
     """Async wrapper for the agent voice processing"""
     text = transcribe()
-    response = run_agent(text)
+    response = run_agent(text, language=language)
     synthesize_text_to_speech(gender=gender, text=response)
 
 from fastapi import FastAPI, UploadFile, File, Form
@@ -146,7 +148,8 @@ app = FastAPI()
 @app.post("/process-audio")
 async def process_audio(
     audio: UploadFile = File(...),
-    gender: str = Form(...)
+    gender: str = Form(...),
+    language: str = Form('english')
 ):
     try:
         # Save the uploaded audio file as input.mp3
@@ -154,7 +157,7 @@ async def process_audio(
             shutil.copyfileobj(audio.file, buffer)
         
         # Run the agent voice processing
-        await run_agent_voice(gender)
+        await run_agent_voice(gender, language)
         
         # Return the output.mp3 file
         if os.path.exists("output.mp3"):
