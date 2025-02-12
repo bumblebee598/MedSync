@@ -10,7 +10,8 @@ def test_audio_endpoint():
     
     # Add the gender parameter
     data = {
-        'gender': 'woman'
+        'gender': 'woman',
+        'language': 'hindi'
           # or 'man'
     }
     
@@ -52,6 +53,7 @@ def test_pdf_endpoint():
 if __name__ == "__main__":
     # Test both endpoints
     print("Testing audio endpoint...")
+    test_audio_endpoint()
     # test_audio_endpoint()
     print("\nTesting PDF endpoint...")
-    test_pdf_endpoint()
+    

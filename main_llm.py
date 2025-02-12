@@ -128,6 +128,7 @@ def run_agent(input: str, language: str) :
                         You have been provided patient education material endpoint to get information for actual cancer patients, as well as an email endpoint. 
                         answer the user query to the best of your ability.  Since you are a conversational agent keep you answer's very concise so it feels like a conversation. dont make bullet points or use ** for markdown, just simple paragraphs as we are using Text To Speech tech.
                         please translate your response to the specified language : {language}
+                        Make sure your final answer is only in the specified language.
                         User query : {input}"""})
     print(response["output"])
     return response["output"]

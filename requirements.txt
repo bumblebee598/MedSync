@@ -8,10 +8,10 @@ pdfplumber
 fastapi
 python-multipart
 uvicorn
-playsound
 fastapi 
 python-multipart 
 uvicorn
 openai
 pinecone
 requests
+PyPDF2
